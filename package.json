@@ -1,0 +1,38 @@
+{
+  "name": "mongoose-seeder",
+  "version": "0.0.1",
+  "description": "Seed your MongoDB database easily",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SamVerschueren/mongoose-seeder.git"
+  },
+  "keywords": [
+    "MongoDB",
+    "seeder"
+  ],
+  "author": "Sam Verschueren <sam.verschueren@gmail.com>",
+  "contributors": [
+    {
+      "name": "Sam Verschueren",
+      "email": "sam.verschueren@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SamVerschueren/mongoose-seeder/issues"
+  },
+  "homepage": "https://github.com/SamVerschueren/mongoose-seeder",
+  "dependencies": {
+    "async": "^0.9.0",
+    "lodash": "^3.5.0",
+    "mongoose": "^3.8.24"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.1",
+    "node-mongoose-validator": "^1.1.0"
+  }
+}

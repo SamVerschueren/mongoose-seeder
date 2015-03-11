@@ -1,0 +1,10 @@
+{
+    "users": {
+        "_model": "User",
+        "foo": {
+            "firstName": "Foo",
+            "name": "Bar",
+            "email": "foo@bar.com"
+        }
+    }
+}
