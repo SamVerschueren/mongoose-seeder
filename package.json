@@ -32,7 +32,10 @@
     "mongoose": "^3.8.24"
   },
   "devDependencies": {
+    "chai": "^2.1.1",
     "mocha": "^2.2.1",
-    "node-mongoose-validator": "^1.1.0"
+    "node-mongoose-validator": "^1.1.0",
+    "sinon": "^1.13.0",
+    "sinon-chai": "^2.7.0"
   }
 }
