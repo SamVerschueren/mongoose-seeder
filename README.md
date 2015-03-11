@@ -1,5 +1,7 @@
 # mongoose-seeder
 
+[![Build Status](https://travis-ci.org/SamVerschueren/mongoose-seeder.svg)](https://travis-ci.org/SamVerschueren/mongoose-seeder)
+
 ## Contributors
 
 - Sam Verschueren [<sam.verschueren@gmail.com>]
