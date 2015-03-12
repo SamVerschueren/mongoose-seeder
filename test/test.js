@@ -5,7 +5,7 @@
  * Test suite for mongoose seeder. Run tests with the following command from
  * the root folder.
  *
- * 		npm test
+ *     npm test
  *
  * @author Sam Verschueren      <sam.verschueren@gmail.com>
  * @since  11 Mar. 2015
