@@ -35,7 +35,7 @@
     "chai": "^2.1.1",
     "mocha": "^2.2.1",
     "node-mongoose-validator": "^1.1.0",
-    "sinon": "^1.12.2",
+    "sinon": "1.12.2",
     "sinon-chai": "^2.7.0"
   }
 }
