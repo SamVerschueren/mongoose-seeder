@@ -31,6 +31,8 @@ fs.readdirSync(models_path).forEach(function (file) {
 
 describe('Mongoose Seeder', function() {
 
+    var simpleData = require('./data/simple.json');
+
     before(function(done) {
         // Set up the connection with the database before running the tests
         mongoose.connect('mongodb://localhost/mongoose-seeder', { server: { socketOptions: { keepAlive: 1 } } }, done);
@@ -44,65 +46,115 @@ describe('Mongoose Seeder', function() {
     describe('Seeding', function() {
 
         describe('Options', function() {
-            var data = require('./data/simple.json');
 
-            beforeEach(function() {
-                sinon.spy(mongoose.connection.db, 'dropDatabase');
-                sinon.spy(mongoose.connection.db, 'dropCollection');
-            });
+            it('Should drop the database if no options are provided', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
 
-            afterEach(function() {
-                mongoose.connection.db.dropDatabase.restore();
-                mongoose.connection.db.dropCollection.restore();
-            });
-
-            it('Should drop the database if no options are provided', function(done) {
-                seeder.seed(data, function(err) {
-                    if(err) {
-                        return done(err);
-                    }
+                seeder.seed(simpleData, function(err, dbData) {
+                    if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
 
                     done();
                 });
-            });
+            }));
 
-            it('Should not drop the database if the dropDatabase option is set to false', function(done) {
-                seeder.seed(data, {dropDatabase: false}, function(err) {
-                    if(err) {
-                        return done(err);
-                    }
+            it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
+                    if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
 
                     done();
                 });
-            });
+            }));
 
-            it('Should drop the users collection if the dropCollections option is set to true', function(done) {
-                seeder.seed(data, {dropCollections: true}, function(err) {
-                    if(err) {
-                        return done(err);
-                    }
+            it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropCollection');
+
+                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                    if(err) return done(err);
 
                     mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
 
                     done();
                 });
-            });
+            }));
 
-            it('Should not drop the database if the dropCollections option is set to true', function(done) {
-                seeder.seed(data, {dropCollections: true}, function(err) {
-                    if(err) {
-                        return done(err);
-                    }
+            it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                    if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
 
                     done();
                 });
-            });
+            }));
+        });
+
+        describe('Database', function() {
+
+            var User = mongoose.model('User');
+
+            it('Should call the create method of the User model', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData, function(err) {
+                    if(err) return done(err);
+
+                    User.create.should.have.been.calledOnce;
+
+                    done();
+                });
+            }));
+
+            it('Should call the create method of the User model with the foo object', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData, function(err) {
+                    if(err) return done(err);
+
+                    User.create.should.have.been.calledWith(simpleData.users.foo);
+
+                    done();
+                });
+            }));
+
+            it('Should create exactly one object in the database', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData, function(err) {
+                    if(err) return done(err);
+
+                    User.count(function(err, count) {
+                        if(err) return done(err);
+
+                        count.should.be.equal(1);
+
+                        done();
+                    });
+                });
+            }));
+
+            it('Should create a second object if the dropDatabase property is set to false', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
+                    if(err) return done(err);
+
+                    User.count(function(err, count) {
+                        if(err) return done(err);
+
+                        count.should.be.equal(2);
+
+                        done();
+                    });
+                });
+            }));
         });
     });
 
