@@ -31,7 +31,8 @@ fs.readdirSync(models_path).forEach(function (file) {
 
 describe('Mongoose Seeder', function() {
 
-    var simpleData = require('./data/simple.json');
+    var simpleData = require('./data/simple.json'),
+        dependencyData = require('./data/dependencies.json');
 
     before(function(done) {
         // Set up the connection with the database before running the tests
@@ -156,6 +157,10 @@ describe('Mongoose Seeder', function() {
                 });
             }));
         });
+    });
+
+    describe('Dependencies', function() {
+
     });
 
     describe('References', function() {
