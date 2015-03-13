@@ -138,7 +138,7 @@ document. It is possible to do that with this library.
 ```
 
 A team holds a list of users with the ```_id``` and the ```email``` of that user. Notice that writing ```->users.foo``` is identical
-to writhing ```->users.foo._id```.
+to writing ```->users.foo._id```.
 
 Another thing that should be taken into account is that it's not possible to do a forward reference. This means that in this case,
 a user cannot reference a team. The reason for this is that at the time the user is being created, the team does not yet exist. This
