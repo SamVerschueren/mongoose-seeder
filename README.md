@@ -3,18 +3,16 @@
 [![Build Status](https://travis-ci.org/SamVerschueren/mongoose-seeder.svg)](https://travis-ci.org/SamVerschueren/mongoose-seeder)
 
 When testing an application, you always want to start with the same database. It is a lot of work to manually create
-dummy data and link them together. When you want extra data to test with, you'll have to add it manually to before the
-tests run.
+dummy data and link them together. When you want extra data to test with, you'll have to create your mongoose objects
+manually in the ```before``` method of the entire testsuite.
 
-This library offers a solution that will create your dummy data from a JSON file.
+This library offers a nice, clean and elegant solution that will create the dummy data objects from a JSON file.
 
 ## Install
 
 **not yet available**
 
 ## How to use
-
-The most simple example looks like this.
 
 ```JavaScript
 var seeder = require('mongoose-seeder'),
@@ -24,6 +22,11 @@ seeder.seed(data, function(err, dbData) {
     // ...
 });
 ```
+
+The ```seed``` function has three options.
+* **data**: The JSON objects that will be used to create the mongo documents.
+* **options**: [optional] Extra options that alter the behaviour. The default behaviour is drop the entire database before seeding it again.
+* **callback**: The callback method when the seeding is done.
 
 ### Behaviour
 
@@ -85,7 +88,7 @@ will look like this.
 {
     "users": {
         "foo": {
-            "_id": ObjectId("550192679a3c881f4e7dc526"),
+            "_id": "550192679a3c881f4e7dc526",
             "__v": 0,
             "firstName": "Foo",
             "name": "Bar",
@@ -106,7 +109,40 @@ seeder.seed(data, {dropCollections: true}, function(err, dbData) {
 
 #### References
 
-**TODO**
+Most of the time, you have documents that have a reference to another document or to properties from another
+document. It is possible to do that with this library.
+
+```json
+{
+    "users": {
+        "_model": "User",
+        "foo": {
+            "firstName": "Foo",
+            "name": "Bar",
+            "email": "foo@bar.com"
+        }
+    },
+    "teams": {
+        "_model": "Team",
+        "teamA": {
+            "name": "Team A",
+            "users": [
+                {
+                    "user": "->users.foo",
+                    "email": "->users.foo.email"
+                }
+            ]
+        }
+    }
+}
+```
+
+A team holds a list of users with the ```_id``` and the ```email``` of that user. Notice that writing ```->users.foo``` is identical
+to writhing ```->users.foo._id```.
+
+Another thing that should be taken into account is that it's not possible to do a forward reference. This means that in this case,
+a user cannot reference a team. The reason for this is that at the time the user is being created, the team does not yet exist. This
+would be a nice feature for the future.
 
 #### Expressions
 
@@ -150,7 +186,7 @@ adding a list of dependencies.
 }
 ```
 
-If you are using a dependency, be sure to install it as dependency in your project. If not, it will provide you with the error
+If you are using a dependency in your json file, be sure to install it as dependency in your project. If not, it will provide you with the error
 that ```moment``` could not be found.
 
 ## Contributors
