@@ -17,6 +17,7 @@ var fs = require('fs'),
     chai = require('chai'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
+    moment = require('moment'),
     seeder = require('../index.js');
 
 // Use the should flavour and sinon-chai
@@ -159,15 +160,34 @@ describe('Mongoose Seeder', function() {
         });
     });
 
-    describe('Dependencies', function() {
-
-    });
-
     describe('References', function() {
 
     });
 
     describe('Evaluations', function() {
 
+    });
+
+    describe('Dependencies', function() {
+
+        it('Should create moment as global variable', function(done) {
+            seeder.seed(dependencyData, function(err, dbData) {
+                if(err) return done(err);
+
+                should.exist(global.moment);
+
+                done();
+            });
+        });
+
+        it('Should set the birthday of foo to the 25th of July 1988', function(done) {
+            seeder.seed(dependencyData, function(err, dbData) {
+                if(err) return done(err);
+
+                dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
+
+                done();
+            });
+        });
     });
 });
