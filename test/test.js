@@ -35,6 +35,9 @@ function connect(done) {
     mongoose.connect('mongodb://localhost/mongoose-seeder', { server: { socketOptions: { keepAlive: 1 } } }, done);
 }
 
+// Surpress the bluebird Unhandled rejection error
+process.on('unhandledRejection', function() {});
+
 describe('Mongoose Seeder', function() {
 
     var simpleData, refData, evalData, dependencyData;
@@ -57,58 +60,7 @@ describe('Mongoose Seeder', function() {
         });
     });
 
-    describe('Seeding', function() {
-
-        describe('Options', function() {
-
-            it('Should drop the database if no options are provided', sinon.test(function(done) {
-                this.spy(mongoose.connection.db, 'dropDatabase');
-
-                seeder.seed(simpleData, function(err, dbData) {
-                    if(err) return done(err);
-
-                    mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
-
-                    done();
-                });
-            }));
-
-            it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
-                this.spy(mongoose.connection.db, 'dropDatabase');
-
-                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
-                    if(err) return done(err);
-
-                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
-
-                    done();
-                });
-            }));
-
-            it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
-                this.spy(mongoose.connection.db, 'dropCollection');
-
-                seeder.seed(simpleData, {dropCollections: true}, function(err) {
-                    if(err) return done(err);
-
-                    mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
-
-                    done();
-                });
-            }));
-
-            it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
-                this.spy(mongoose.connection.db, 'dropDatabase');
-
-                seeder.seed(simpleData, {dropCollections: true}, function(err) {
-                    if(err) return done(err);
-
-                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
-
-                    done();
-                });
-            }));
-        });
+    describe('Callbacks', function() {
 
         describe('Database', function() {
 
@@ -122,17 +74,6 @@ describe('Mongoose Seeder', function() {
                         connect(done);
                     });
                 });
-            });
-
-            it('Should throw an error if no callback is provided.', function(done) {
-                try {
-                    seeder.seed(simpleData);
-                }
-                catch(e) {
-                    should.exist(e);
-
-                    done();
-                }
             });
 
             it('Should call the create method of the User model', sinon.test(function(done) {
@@ -221,169 +162,504 @@ describe('Mongoose Seeder', function() {
                 });
             });
         });
+
+        describe('Options', function() {
+
+            it('Should drop the database if no options are provided', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
+
+                    done();
+                });
+            }));
+
+            it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
+                    if(err) return done(err);
+
+                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
+
+                    done();
+                });
+            }));
+
+            it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropCollection');
+
+                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                    if(err) return done(err);
+
+                    mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
+
+                    done();
+                });
+            }));
+
+            it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                    if(err) return done(err);
+
+                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
+
+                    done();
+                });
+            }));
+        });
+
+        describe('References', function() {
+
+            it('Should create a team with one user', function(done) {
+                seeder.seed(refData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.teams.teamA.users.should.have.length(1);
+
+                    done();
+                });
+            });
+
+            it('Should set the correct ID of the user in the team', function(done) {
+                seeder.seed(refData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    var user = dbData.teams.teamA.users[0];
+
+                    user.user.should.be.eql(dbData.users.foo._id);
+
+                    done();
+                });
+            });
+
+            it('Should set the correct email of the user in the team', function(done) {
+                seeder.seed(refData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    var user = dbData.teams.teamA.users[0];
+
+                    user.email.should.be.equal(dbData.users.foo.email);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
+                refData.teams.teamA.users[0].user = '->users';
+
+                seeder.seed(refData, function(err, dbData) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the property in the reference was not found', function(done) {
+                refData.teams.teamA.users[0].email = '->users.fooo.email';
+
+                seeder.seed(refData, function(err, dbData) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the object of the reference was not found', function(done) {
+                refData.teams.teamA.users[0].email = '->user.foo.email';
+
+                seeder.seed(refData, function(err, dbData) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+        });
+
+        describe('Expressions', function() {
+
+            it('Should set the full name to \'Foo Bar\'', function(done) {
+                seeder.seed(evalData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.users.foo.fullName.should.be.equal('Foo Bar');
+
+                    done();
+                });
+            });
+
+            it('Should set a date as birthday', function(done) {
+                seeder.seed(evalData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.users.foo.birthday.should.be.a('Date');
+
+                    done();
+                });
+            });
+
+            it('Should set the number of nationalities to 2', function(done) {
+                seeder.seed(evalData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.users.foo.nationalities.should.be.equal(2);
+
+                    done();
+                });
+            });
+
+            it('Should not throw an error if the expression could not be processed', function(done) {
+                evalData.users.foo.fullName = '=firstName + \' \' + name';
+
+                seeder.seed(evalData, function(err, dbData) {
+                    should.not.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should just store the string value of the expression if it could not be processed ', function(done) {
+                evalData.users.foo.fullName = '=firstName + \' \' + name';
+
+                seeder.seed(evalData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
+
+                    done();
+                });
+            });
+        });
+
+        describe('Dependencies', function() {
+
+            it('Should create moment as global variable', function(done) {
+                seeder.seed(dependencyData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    should.exist(global.moment);
+
+                    done();
+                });
+            });
+
+            it('Should set the birthday of foo to the 25th of July 1988', function(done) {
+                seeder.seed(dependencyData, function(err, dbData) {
+                    if(err) return done(err);
+
+                    dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the dependency is not found', function(done) {
+                dependencyData._dependencies.unknown = 'unknown';
+
+                seeder.seed(dependencyData, function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
+                dependencyData._dependencies.unknown = 'unknown';
+
+                seeder.seed(dependencyData, function(err) {
+                    err.code.should.be.equal('MODULE_NOT_FOUND');
+
+                    done();
+                });
+            });
+        });
     });
 
-    describe('References', function() {
+    describe('Promises', function() {
 
-        it('Should create a team with one user', function(done) {
-            seeder.seed(refData, function(err, dbData) {
-                if(err) return done(err);
+        describe('Database', function() {
 
-                dbData.teams.teamA.users.should.have.length(1);
+            var User = mongoose.model('User');
 
-                done();
+            it('Should return an error if the connection with the database failed', function(done) {
+                mongoose.disconnect(function() {
+                    seeder.seed(simpleData).catch(function(err) {
+                        should.exist(err);
+
+                        connect(done);
+                    });
+                });
+            });
+
+            it('Should call the create method of the User model', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData).then(function() {
+                    User.create.should.have.been.calledOnce;
+
+                    done();
+                }).catch(done);
+            }));
+
+            it('Should call the create method of the User model with the foo object', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData).then(function() {
+                    User.create.should.have.been.calledWith(simpleData.users.foo);
+
+                    done();
+                }).catch(done);
+            }));
+
+            it('Should create exactly one object in the database', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData).then(function() {
+                    User.count(function(err, count) {
+                        if(err) return done(err);
+
+                        count.should.be.equal(1);
+
+                        done();
+                    });
+                }).catch(done);
+            }));
+
+            it('Should create a second object if the dropDatabase property is set to false', sinon.test(function(done) {
+                this.spy(mongoose.model('User'), 'create');
+
+                seeder.seed(simpleData, {dropDatabase: false}).then(function() {
+                    User.count(function(err, count) {
+                        if(err) return done(err);
+
+                        count.should.be.equal(2);
+
+                        done();
+                    });
+                }).catch(done);
+            }));
+
+            it('Should return an error if the model does not exist', function(done) {
+                simpleData.users._model = 'Users';
+
+                seeder.seed(simpleData).catch(function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the validation failed when creating an object', function(done) {
+                delete simpleData.users.foo.email;
+
+                seeder.seed(simpleData).catch(function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the _model property went missing', function(done) {
+                delete simpleData.users._model;
+
+                seeder.seed(simpleData).catch(function(err) {
+                    should.exist(err);
+
+                    done();
+                });
             });
         });
 
-        it('Should set the correct ID of the user in the team', function(done) {
-            seeder.seed(refData, function(err, dbData) {
-                if(err) return done(err);
+        describe('Options', function() {
 
-                var user = dbData.teams.teamA.users[0];
+            it('Should drop the database if no options are provided', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
 
-                user.user.should.be.eql(dbData.users.foo._id);
+                seeder.seed(simpleData).then(function(dbData) {
+                    mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
 
-                done();
+                    done();
+                }).catch(done);
+            }));
+
+            it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropDatabase: false}).then(function() {
+                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
+
+                    done();
+                }).catch(done);
+            }));
+
+            it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropCollection');
+
+                seeder.seed(simpleData, {dropCollections: true}).then(function() {
+                    mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
+
+                    done();
+                }).catch(done);
+            }));
+
+            it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
+                this.spy(mongoose.connection.db, 'dropDatabase');
+
+                seeder.seed(simpleData, {dropCollections: true}).then(function() {
+                    mongoose.connection.db.dropDatabase.should.not.have.been.called;
+
+                    done();
+                }).catch(done);
+            }));
+        });
+
+        describe('References', function() {
+
+            it('Should create a team with one user', function(done) {
+                seeder.seed(refData).then(function(dbData) {
+                    dbData.teams.teamA.users.should.have.length(1);
+
+                    done();
+                }).catch(done);
+            });
+
+            it('Should set the correct ID of the user in the team', function(done) {
+                seeder.seed(refData).then(function(dbData) {
+                    var user = dbData.teams.teamA.users[0];
+
+                    user.user.should.be.eql(dbData.users.foo._id);
+
+                    done();
+                }).catch(done);
+            });
+
+            it('Should set the correct email of the user in the team', function(done) {
+                seeder.seed(refData).then(function(dbData) {
+                    var user = dbData.teams.teamA.users[0];
+
+                    user.email.should.be.equal(dbData.users.foo.email);
+
+                    done();
+                }).catch(done);
+            });
+
+            it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
+                refData.teams.teamA.users[0].user = '->users';
+
+                seeder.seed(refData).catch(function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the property in the reference was not found', function(done) {
+                refData.teams.teamA.users[0].email = '->users.fooo.email';
+
+                seeder.seed(refData).catch(function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the object of the reference was not found', function(done) {
+                refData.teams.teamA.users[0].email = '->user.foo.email';
+
+                seeder.seed(refData, function(err, dbData) {
+                    should.exist(err);
+
+                    done();
+                });
             });
         });
 
-        it('Should set the correct email of the user in the team', function(done) {
-            seeder.seed(refData, function(err, dbData) {
-                if(err) return done(err);
+        describe('Expressions', function() {
 
-                var user = dbData.teams.teamA.users[0];
+            it('Should set the full name to \'Foo Bar\'', function(done) {
+                seeder.seed(evalData).then(function(dbData) {
+                    dbData.users.foo.fullName.should.be.equal('Foo Bar');
 
-                user.email.should.be.equal(dbData.users.foo.email);
+                    done();
+                }).catch(done);
+            });
 
-                done();
+            it('Should set a date as birthday', function(done) {
+                seeder.seed(evalData).then(function(dbData) {
+                    dbData.users.foo.birthday.should.be.a('Date');
+
+                    done();
+                }).catch(done);
+            });
+
+            it('Should set the number of nationalities to 2', function(done) {
+                seeder.seed(evalData).then(function(dbData) {
+                    dbData.users.foo.nationalities.should.be.equal(2);
+
+                    done();
+                }).catch(done);
+            });
+
+            it('Should not throw an error if the expression could not be processed', function(done) {
+                evalData.users.foo.fullName = '=firstName + \' \' + name';
+
+                seeder.seed(evalData).then(function(dbData) {
+                    done();
+                });
+            });
+
+            it('Should just store the string value of the expression if it could not be processed ', function(done) {
+                evalData.users.foo.fullName = '=firstName + \' \' + name';
+
+                seeder.seed(evalData).then(function(dbData) {
+                    dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
+
+                    done();
+                }).catch(done);
             });
         });
 
-        it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
-            refData.teams.teamA.users[0].user = '->users';
+        describe('Dependencies', function() {
 
-            seeder.seed(refData, function(err, dbData) {
-                should.exist(err);
+            it('Should create moment as global variable', function(done) {
+                seeder.seed(dependencyData).then(function(dbData) {
+                    should.exist(global.moment);
 
-                done();
+                    done();
+                }).catch(done);
             });
-        });
 
-        it('Should return an error if the property in the reference was not found', function(done) {
-            refData.teams.teamA.users[0].email = '->users.fooo.email';
+            it('Should set the birthday of foo to the 25th of July 1988', function(done) {
+                seeder.seed(dependencyData).then(function(dbData) {
+                    dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
 
-            seeder.seed(refData, function(err, dbData) {
-                should.exist(err);
-
-                done();
+                    done();
+                }).catch(done);
             });
-        });
 
-        it('Should return an error if the object of the reference was not found', function(done) {
-            refData.teams.teamA.users[0].email = '->user.foo.email';
+            it('Should return an error if the dependency is not found', function(done) {
+                dependencyData._dependencies.unknown = 'unknown';
 
-            seeder.seed(refData, function(err, dbData) {
-                should.exist(err);
+                seeder.seed(dependencyData).catch(function(err) {
+                    should.exist(err);
 
-                done();
+                    done();
+                });
             });
-        });
-    });
 
-    describe('Expressions', function() {
+            it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
+                dependencyData._dependencies.unknown = 'unknown';
 
-        it('Should set the full name to \'Foo Bar\'', function(done) {
-            seeder.seed(evalData, function(err, dbData) {
-                if(err) return done(err);
+                seeder.seed(dependencyData).catch(function(err) {
+                    err.code.should.be.equal('MODULE_NOT_FOUND');
 
-                dbData.users.foo.fullName.should.be.equal('Foo Bar');
-
-                done();
-            });
-        });
-
-        it('Should set a date as birthday', function(done) {
-            seeder.seed(evalData, function(err, dbData) {
-                if(err) return done(err);
-
-                dbData.users.foo.birthday.should.be.a('Date');
-
-                done();
-            });
-        });
-
-        it('Should set the number of nationalities to 2', function(done) {
-            seeder.seed(evalData, function(err, dbData) {
-                if(err) return done(err);
-
-                dbData.users.foo.nationalities.should.be.equal(2);
-
-                done();
-            });
-        });
-
-        it('Should not throw an error if the expression could not be processed', function(done) {
-            evalData.users.foo.fullName = '=firstName + \' \' + name';
-
-            seeder.seed(evalData, function(err, dbData) {
-                should.not.exist(err);
-
-                done();
-            });
-        });
-
-        it('Should just store the string value of the expression if it could not be processed ', function(done) {
-            evalData.users.foo.fullName = '=firstName + \' \' + name';
-
-            seeder.seed(evalData, function(err, dbData) {
-                if(err) return done(err);
-
-                dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
-
-                done();
-            });
-        });
-    });
-
-    describe('Dependencies', function() {
-
-        it('Should create moment as global variable', function(done) {
-            seeder.seed(dependencyData, function(err, dbData) {
-                if(err) return done(err);
-
-                should.exist(global.moment);
-
-                done();
-            });
-        });
-
-        it('Should set the birthday of foo to the 25th of July 1988', function(done) {
-            seeder.seed(dependencyData, function(err, dbData) {
-                if(err) return done(err);
-
-                dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
-
-                done();
-            });
-        });
-
-        it('Should return an error if the dependency is not found', function(done) {
-            dependencyData._dependencies.unknown = 'unknown';
-
-            seeder.seed(dependencyData, function(err) {
-                should.exist(err);
-
-                done();
-            });
-        });
-
-        it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
-            dependencyData._dependencies.unknown = 'unknown';
-
-            seeder.seed(dependencyData, function(err) {
-                err.code.should.be.equal('MODULE_NOT_FOUND');
-
-                done();
+                    done();
+                });
             });
         });
     });
