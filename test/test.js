@@ -167,6 +167,16 @@ describe('Mongoose Seeder', function() {
                     });
                 });
             }));
+
+            it('Should return an error if the model does not exist', function(done) {
+                simpleData.users._model = 'Users';
+
+                seeder.seed(simpleData, function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
         });
     });
 
@@ -201,6 +211,36 @@ describe('Mongoose Seeder', function() {
                 var user = dbData.teams.teamA.users[0];
 
                 user.email.should.be.equal(dbData.users.foo.email);
+
+                done();
+            });
+        });
+
+        it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
+            refData.teams.teamA.users[0].user = '->users';
+
+            seeder.seed(refData, function(err, dbData) {
+                should.exist(err);
+
+                done();
+            });
+        });
+
+        it('Should return an error if the property in the reference was not found', function(done) {
+            refData.teams.teamA.users[0].email = '->users.fooo.email';
+
+            seeder.seed(refData, function(err, dbData) {
+                should.exist(err);
+
+                done();
+            });
+        });
+
+        it('Should return an error if the object of the reference was not found', function(done) {
+            refData.teams.teamA.users[0].email = '->user.foo.email';
+
+            seeder.seed(refData, function(err, dbData) {
+                should.exist(err);
 
                 done();
             });
