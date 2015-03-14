@@ -82,7 +82,7 @@ How does a json file looks like? Take a look at this simple example.
 
 It will try to find the mongoose model ```User``` and calls the ```create``` method for the foo object.
 
-Why isn't this an array of items? This is because in the callback method, the second parameter returns the database object. This
+The reason that this isn't an array of items, is because in the callback method, the second parameter returns the database object. This
 will look like this.
 
 ```json
