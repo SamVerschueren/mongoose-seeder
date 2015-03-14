@@ -12,6 +12,7 @@
   },
   "keywords": [
     "MongoDB",
+    "Mongoose",
     "seeder"
   ],
   "author": "Sam Verschueren <sam.verschueren@gmail.com>",

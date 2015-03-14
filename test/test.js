@@ -289,7 +289,7 @@ describe('Mongoose Seeder', function() {
             });
         });
 
-        it('Should just store the expression as is if the expression could not be processed ', function(done) {
+        it('Should just store the string value of the expression if it could not be processed ', function(done) {
             evalData.users.foo.fullName = '=firstName + \' \' + name';
 
             seeder.seed(evalData, function(err, dbData) {
