@@ -164,6 +164,26 @@ Sometimes you will need something as an expression, for instance to set the birt
 
 Every statement that is preceded by an ```=```-sign will be evaluated by the native ```eval()``` method of JavaScript.
 
+We can also bring it a step further and reference to the object itself. For instance, if we want to store the full name of
+the user aswell, instead of adding it manually, you can do something like this.
+
+```json
+{
+    "users": {
+        "_model": "User",
+        "foo": {
+            "firstName": "Foo",
+            "name": "Bar",
+            "fullName": "=this.firstName + ' ' + this.lastName",
+            "email": "foo@bar.com",
+            "birthday": "=new Date(1988, 08, 16)"
+        }
+    }
+}
+```
+
+The result of the ```fullName``` expression will be ```Foo Bar```. So every evaluation is evaluated in it's own context.
+
 #### Dependencies
 
 What if we don't want to make use of the plain old ```Date``` object, but instead use something like ```moment```. This is possible by

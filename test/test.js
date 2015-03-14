@@ -39,7 +39,7 @@ describe('Mongoose Seeder', function() {
         // Clone all the data so that we can start with a clean sheet every time
         simpleData = _.cloneDeep(require('./data/simple.json'));
         refData = _.cloneDeep(require('./data/references.json'));
-        evalData = _.cloneDeep(require('./data/evaluations.json'));
+        evalData = _.cloneDeep(require('./data/expressions.json'));
         dependencyData = _.cloneDeep(require('./data/dependencies.json'));
     });
 
@@ -207,13 +207,13 @@ describe('Mongoose Seeder', function() {
         });
     });
 
-    describe('Evaluations', function() {
+    describe('Expressions', function() {
 
-        it('Should set the number of nationalities to 2', function(done) {
+        it('Should set the full name to \'Foo Bar\'', function(done) {
             seeder.seed(evalData, function(err, dbData) {
                 if(err) return done(err);
 
-                dbData.users.foo.nationalities.should.be.equal(2);
+                dbData.users.foo.fullName.should.be.equal('Foo Bar');
 
                 done();
             });
@@ -229,11 +229,33 @@ describe('Mongoose Seeder', function() {
             });
         });
 
-        it('Should not throw an error if the evaluation could not be processed', function(done) {
+        it('Should set the number of nationalities to 2', function(done) {
+            seeder.seed(evalData, function(err, dbData) {
+                if(err) return done(err);
+
+                dbData.users.foo.nationalities.should.be.equal(2);
+
+                done();
+            });
+        });
+
+        it('Should not throw an error if the expression could not be processed', function(done) {
             evalData.users.foo.fullName = '=firstName + \' \' + name';
 
             seeder.seed(evalData, function(err, dbData) {
                 should.not.exist(err);
+
+                done();
+            });
+        });
+
+        it('Should just store the expression as is if the expression could not be processed ', function(done) {
+            evalData.users.foo.fullName = '=firstName + \' \' + name';
+
+            seeder.seed(evalData, function(err, dbData) {
+                if(err) return done(err);
+
+                dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
 
                 done();
             });
