@@ -206,8 +206,8 @@ adding a list of dependencies.
 }
 ```
 
-If you are using a dependency in your json file, be sure to install it as dependency in your project. If not, it will provide you with the error
-that ```moment``` could not be found.
+If you are using a dependency in your json file, be sure to install it as dependency in your project. If not, it will stop the execution
+and return a ```MODULE_NOT_FOUND``` error in the callback function.
 
 ## Contributors
 

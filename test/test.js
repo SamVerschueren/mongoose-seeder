@@ -283,5 +283,25 @@ describe('Mongoose Seeder', function() {
                 done();
             });
         });
+
+        it('Should return an error if the dependency is not found', function(done) {
+            dependencyData._dependencies.unknown = 'unknown';
+
+            seeder.seed(dependencyData, function(err) {
+                should.exist(err);
+
+                done();
+            });
+        });
+
+        it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
+            dependencyData._dependencies.unknown = 'unknown';
+
+            seeder.seed(dependencyData, function(err) {
+                err.code.should.be.equal('MODULE_NOT_FOUND');
+
+                done();
+            });
+        });
     });
 });
