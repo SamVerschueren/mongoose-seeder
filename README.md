@@ -19,8 +19,10 @@ This library offers a nice, clean and elegant solution that will create the dumm
 var seeder = require('mongoose-seeder'),
     data = require('./data.json');
 
-seeder.seed(data, function(err, dbData) {
-    // ...
+seeder.seed(data).then(function(dbData) {
+    // The database objects are stored in dbData
+}).catch(function(err) {
+    // handle error
 });
 ```
 
@@ -28,6 +30,17 @@ The ```seed``` function has three options.
 * **data**: The JSON objects that will be used to create the mongo documents.
 * **options**: [optional] Extra options that alter the behaviour. The default behaviour is drop the entire database before seeding it again.
 * **callback**: The callback method when the seeding is done.
+
+### Callbacks
+
+Although, promises are the preferred way of using the library. It's also possible to use a callback function as extra parameter
+in the seed function.
+
+```JavaScript
+seeder.seed(data, function(err, dbData) {
+    // ...
+})
+```
 
 ### Behaviour
 
@@ -44,8 +57,10 @@ documents to the collection.
 
 ```JavaScript
 // Drop the entire database (default behaviour)
-seeder.seed(data, {dropDatabase: true}, function(err, dbData) {
+seeder.seed(data, {dropDatabase: true}).then(function(dbData) {
     // ...
+}).catch(function(err) {
+    // handle error
 });
 ```
 
@@ -56,8 +71,10 @@ for example, but only one collection is filled by the seeder, only that collecti
 
 ```JavaScript
 // Drop the entire database (default behaviour)
-seeder.seed(data, {dropCollections: true}, function(err, dbData) {
+seeder.seed(data, {dropCollections: true}).then(function(dbData) {
     // ...
+}).catch(function(err) {
+    // handle error
 });
 ```
 
