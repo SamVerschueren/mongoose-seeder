@@ -4,7 +4,8 @@
   "description": "Seed your MongoDB database easily",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha test"
+    "test": "node_modules/.bin/mocha test",
+    "coveralls": "node_modules/.bin/istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | node_modules/.bin/coveralls && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,8 @@
   },
   "devDependencies": {
     "chai": "^2.1.1",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.7",
     "mocha": "^2.2.1",
     "moment": "^2.9.0",
     "node-mongoose-validator": "^1.1.0",

@@ -31,6 +31,10 @@ fs.readdirSync(models_path).forEach(function (file) {
     if (~file.indexOf('.js')) require(models_path + '/' + file);
 });
 
+function connect(done) {
+    mongoose.connect('mongodb://localhost/mongoose-seeder', { server: { socketOptions: { keepAlive: 1 } } }, done);
+}
+
 describe('Mongoose Seeder', function() {
 
     var simpleData, refData, evalData, dependencyData;
@@ -43,10 +47,8 @@ describe('Mongoose Seeder', function() {
         dependencyData = _.cloneDeep(require('./data/dependencies.json'));
     });
 
-    before(function(done) {
-        // Set up the connection with the database before running the tests
-        mongoose.connect('mongodb://localhost/mongoose-seeder', { server: { socketOptions: { keepAlive: 1 } } }, done);
-    });
+    // Connect with the database
+    before(connect);
 
     after(function(done) {
         // Drop the entire database after execution
@@ -112,6 +114,27 @@ describe('Mongoose Seeder', function() {
 
             var User = mongoose.model('User');
 
+            it('Should return an error if the connection with the database failed', function(done) {
+                mongoose.disconnect(function() {
+                    seeder.seed(simpleData, function(err) {
+                        should.exist(err);
+
+                        connect(done);
+                    });
+                });
+            });
+
+            it('Should throw an error if no callback is provided.', function(done) {
+                try {
+                    seeder.seed(simpleData);
+                }
+                catch(e) {
+                    should.exist(e);
+
+                    done();
+                }
+            });
+
             it('Should call the create method of the User model', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
@@ -170,6 +193,26 @@ describe('Mongoose Seeder', function() {
 
             it('Should return an error if the model does not exist', function(done) {
                 simpleData.users._model = 'Users';
+
+                seeder.seed(simpleData, function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the validation failed when creating an object', function(done) {
+                delete simpleData.users.foo.email;
+
+                seeder.seed(simpleData, function(err) {
+                    should.exist(err);
+
+                    done();
+                });
+            });
+
+            it('Should return an error if the _model property went missing', function(done) {
+                delete simpleData.users._model;
 
                 seeder.seed(simpleData, function(err) {
                     should.exist(err);
