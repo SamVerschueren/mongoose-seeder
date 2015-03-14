@@ -1,7 +1,7 @@
 # mongoose-seeder
 
 [![Build Status](https://travis-ci.org/SamVerschueren/mongoose-seeder.svg)](https://travis-ci.org/SamVerschueren/mongoose-seeder)
-[![Coverage Status](https://coveralls.io/repos/SamVerschueren/mongoose-seeder/badge.svg?branch=master)](https://coveralls.io/r/SamVerschueren/mongoose-seeder)
+[![Coverage Status](https://coveralls.io/repos/SamVerschueren/mongoose-seeder/badge.svg?branch=master)](https://coveralls.io/r/SamVerschueren/mongoose-seeder?branch=master)
 
 When testing an application, you always want to start with the same database. It is a lot of work to manually create
 dummy data and link them together. When you want extra data to test with, you'll have to create your mongoose objects
