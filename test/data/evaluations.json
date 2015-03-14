@@ -1,0 +1,16 @@
+{
+    "_dependencies": {
+        "moment": "moment"
+    },
+    "users": {
+        "_model": "User",
+        "foo": {
+            "firstName": "Foo",
+            "name": "Bar",
+            "fullName": "=this.firstName + ' ' + this.name",
+            "email": "foo@bar.com",
+            "birthday": "=new Date()",
+            "nationalities": "=1+1"
+        }
+    }
+}
