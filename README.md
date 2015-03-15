@@ -11,7 +11,9 @@ This library offers a nice, clean and elegant solution that will create the dumm
 
 ## Install
 
-**not yet available**
+```
+npm install mongoose-seeder
+```
 
 ## How to use
 
