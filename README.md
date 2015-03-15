@@ -26,10 +26,9 @@ seeder.seed(data).then(function(dbData) {
 });
 ```
 
-The ```seed``` function has three options.
+The ```seed``` function has two options.
 * **data**: The JSON objects that will be used to create the mongo documents.
 * **options**: [optional] Extra options that alter the behaviour. The default behaviour is drop the entire database before seeding it again.
-* **callback**: The callback method when the seeding is done.
 
 ### Callbacks
 
@@ -41,6 +40,9 @@ seeder.seed(data, function(err, dbData) {
     // ...
 })
 ```
+
+So actually, the seed function has three options if you want to use it with a callback. You can still provide the extra options
+as second parameter in the seed function.
 
 ### Behaviour
 
