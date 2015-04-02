@@ -237,8 +237,8 @@ and return a ```MODULE_NOT_FOUND``` error in the callback function.
 
 ## Changelog
 
-- **1.0.1**
-    - Version of mongoose is now fixed because of unstable warnings
+- **1.0.2**
+    - Version of mongoose is fixed because of unstable warnings
 
 - **1.0.0**
     - Initial release

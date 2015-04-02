@@ -1,6 +1,6 @@
 {
   "name": "mongoose-seeder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Seed your MongoDB database easily",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "async": "^0.9.0",
     "bluebird": "^2.9.23",
     "lodash": "^3.6.0",
-    "mongoose": "4.0.1"
+    "mongoose": "3.8.25"
   },
   "devDependencies": {
     "chai": "^2.1.1",
