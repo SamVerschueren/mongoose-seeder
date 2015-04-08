@@ -141,7 +141,11 @@ document. It is possible to do that with this library.
         "foo": {
             "firstName": "Foo",
             "name": "Bar",
-            "email": "foo@bar.com"
+            "email": "foo@bar.com",
+            "hobbies": [
+                "cycling",
+                "swimming"
+            ]
         }
     },
     "teams": {
@@ -151,7 +155,8 @@ document. It is possible to do that with this library.
             "users": [
                 {
                     "user": "->users.foo",
-                    "email": "->users.foo.email"
+                    "email": "->users.foo.email",
+                    "hobies": "->users.foo.hobbies"
                 }
             ]
         }
@@ -236,6 +241,9 @@ and return a ```MODULE_NOT_FOUND``` error in the callback function.
 - Sam Verschueren (Author) [<sam.verschueren@gmail.com>]
 
 ## Changelog
+
+- **1.0.3**
+    - Resolved issue [#4](https://github.com/SamVerschueren/mongoose-seeder/issues/4) for referencing an array
 
 - **1.0.2**
     - Version of mongoose is fixed because of unstable warnings
