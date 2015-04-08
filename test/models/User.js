@@ -21,7 +21,8 @@ var UserSchema = new Schema({
     fullName:           {type: String},
     email:              {type: String, required: true},
     birthday:           {type: Date},
-    nationalities:      {type: Number}
+    nationalities:      {type: Number},
+    hobbies:            [{type: String}]
 });
 
 // Validations

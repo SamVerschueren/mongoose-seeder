@@ -4,7 +4,11 @@
         "foo": {
             "firstName": "Foo",
             "name": "Bar",
-            "email": "foo@bar.com"
+            "email": "foo@bar.com",
+            "hobbies": [
+                "swimming",
+                "cycling"
+            ]
         }
     },
     "teams": {
@@ -14,7 +18,8 @@
             "users": [
                 {
                     "user": "->users.foo",
-                    "email": "->users.foo.email"
+                    "email": "->users.foo.email",
+                    "hobbies": "->users.foo.hobbies"
                 }
             ]
         }

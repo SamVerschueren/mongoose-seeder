@@ -20,7 +20,8 @@ var TeamSchema = new Schema({
     users:              [{
                             _id:        false,
                             user:       {type: Schema.Types.ObjectId, ref: 'User'},
-                            email:      {type: String}
+                            email:      {type: String},
+                            hobbies:    [{type: String}]
                         }]
 });
 
