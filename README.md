@@ -240,21 +240,6 @@ and return a ```MODULE_NOT_FOUND``` error in the callback function.
 
 - Sam Verschueren (Author) [<sam.verschueren@gmail.com>]
 
-## Changelog
-
-- **1.1.0**
-    - Resolved issue [#3](https://github.com/SamVerschueren/mongoose-seeder/issues/3)
-    - Library now working with mongoose@4.x 
-    
-- **1.0.3**
-    - Resolved issue [#4](https://github.com/SamVerschueren/mongoose-seeder/issues/4) for referencing an array
-
-- **1.0.2**
-    - Version of mongoose is fixed because of unstable warnings
-
-- **1.0.0**
-    - Initial release
-
 ## License
 
 MIT © Sam Verschueren
