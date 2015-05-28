@@ -1,6 +1,6 @@
 {
   "name": "mongoose-seeder",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Seed your MongoDB database easily",
   "main": "index.js",
   "scripts": {
