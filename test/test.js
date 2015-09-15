@@ -39,6 +39,7 @@ function connect(done) {
 process.on('unhandledRejection', function() {});
 
 describe('Mongoose Seeder', function() {
+    this.timeout(4000);
 
     var simpleData, refData, evalData, dependencyData;
 
