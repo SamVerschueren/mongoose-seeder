@@ -164,7 +164,7 @@ module.exports = (function() {
                     var ctx = vm.createContext(objectAssign(base, _this.sandbox));
 
                     // Run in the new context
-                    return vm.runInContext(value.substr(1).replace(/this\./g, '_this.'), vm.createContext(ctx));
+                    return vm.runInContext(value.substr(1).replace(/this\./g, '_this.'), ctx);
                 }
                 catch(e) {
                     return value;
