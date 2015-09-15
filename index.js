@@ -26,6 +26,7 @@ module.exports = (function() {
     var _this = {
         result: {},
         options: {},
+        sandbox: undefined,
         /**
          * The internal method for seeding the database.
          *
@@ -36,12 +37,13 @@ module.exports = (function() {
             try {
                 // Retrieve all the dependencies
                 _.forEach(data._dependencies || {}, function(value, key) {
-                    if(global[key] !== undefined) {
+                    if(this.sandbox[key] !== undefined) {
+                        // Do nothing if the dependency is already defined
                         return;
                     }
 
-                    global[key] = require(value);
-                });
+                    this.sandbox[key] = module.parent.require(value);
+                }.bind(this));
 
                 // Remove the dependencies property
                 delete data._dependencies;
@@ -152,7 +154,16 @@ module.exports = (function() {
             else if(_.isString(value) && value.indexOf('=') === 0) {
                 // Evaluate the expression
                 try {
-                    return _this._eval.call(parent, value.substr(1));
+                    // Assign the object to the _this property
+                    var base = {
+                       '_this': parent
+                    };
+
+                    // Create a new combined context
+                    var ctx = vm.createContext(Object.assign(base, _this.sandbox));
+
+                    // Run in the new context
+                    return vm.runInContext(value.substr(1).replace(/this\./g, '_this.'), vm.createContext(ctx));
                 }
                 catch(e) {
                     return value;
@@ -199,22 +210,6 @@ module.exports = (function() {
             }
 
             return result;
-        },
-        /**
-         * This helper method for eval makes sure it is possible to call eval in
-         * a certain context. For instance, if you call eval like this
-         *
-         *     var a = {hello: 'world'};
-         *     _eval.call(a, 'this.hello');
-         *
-         * This will return the 'world' string because the context of the eval is set
-         * to the 'a' object
-         *
-         * @param  {String} expr The expression to be evaluated.
-         * @return {*}           The result of the evaluated expression.
-         */
-        _eval: function(expr) {
-            return eval(expr);
         }
     };
 
@@ -242,6 +237,7 @@ module.exports = (function() {
             // Clear earlier results and options
             _this.result = {};
             _this.options = {};
+            _this.sandbox = vm.createContext();
 
             // Defaulting the options
             _this.options = _.extend(_.clone(DEFAULT_OPTIONS), options);

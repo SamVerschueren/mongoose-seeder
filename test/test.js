@@ -338,11 +338,11 @@ describe('Mongoose Seeder', function() {
 
         describe('Dependencies', function() {
 
-            it('Should create moment as global variable', function(done) {
+            it('Should not create moment as global variable', function(done) {
                 seeder.seed(dependencyData, function(err, dbData) {
                     if(err) return done(err);
 
-                    should.exist(global.moment);
+                    should.not.exist(global.moment);
 
                     done();
                 });
@@ -626,9 +626,9 @@ describe('Mongoose Seeder', function() {
 
         describe('Dependencies', function() {
 
-            it('Should create moment as global variable', function(done) {
+            it('Should not create moment as global variable', function(done) {
                 seeder.seed(dependencyData).then(function(dbData) {
-                    should.exist(global.moment);
+                    should.not.exist(global.moment);
 
                     done();
                 }).catch(done);
