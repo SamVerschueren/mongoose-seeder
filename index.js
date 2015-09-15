@@ -5,7 +5,7 @@
  * before the tests should start.
  *
  * @author Sam Verschueren      <sam.verschueren@gmail.com>
- * @since  04 Mar. 2015
+ * @since  4 Mar. 2015
  */
 
 // module dependencies
@@ -13,7 +13,8 @@ var vm = require('vm'),
     mongoose = require('mongoose'),
     async = require('async'),
     _ = require('lodash'),
-    Q = require('q');
+    Q = require('q'),
+    objectAssign = require('object-assign');
 
 module.exports = (function() {
 
@@ -160,7 +161,7 @@ module.exports = (function() {
                     };
 
                     // Create a new combined context
-                    var ctx = vm.createContext(Object.assign(base, _this.sandbox));
+                    var ctx = vm.createContext(objectAssign(base, _this.sandbox));
 
                     // Run in the new context
                     return vm.runInContext(value.substr(1).replace(/this\./g, '_this.'), vm.createContext(ctx));
