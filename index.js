@@ -252,14 +252,16 @@ module.exports = (function() {
 
             if(_this.options.dropDatabase === true) {
                 // Make sure to drop the database first
-                mongoose.connection.db.dropDatabase(function(err) {
-                    if(err) {
-                        // Stop seeding if an error occurred
-                        return done(err);
-                    }
+                mongoose.connection.on('open', function() {
+                    mongoose.connection.db.dropDatabase(function(err) {
+                        if(err) {
+                            // Stop seeding if an error occurred
+                            return done(err);
+                        }
 
-                    // Start seeding when the database is dropped
-                    _this._seed(_.cloneDeep(data), done);
+                        // Start seeding when the database is dropped
+                        _this._seed(_.cloneDeep(data), done);
+                    });
                 });
             }
             else {
