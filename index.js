@@ -82,7 +82,11 @@ module.exports = (function() {
                                     callback();
                                 });
                             }
-                            else {
+                            else if(_this.options.removeCollections === true) {
+                                mongoose.connection.collections[Model.collection.name].remove({}, function(err) {
+                                    callback();
+                                });
+                            } else {
                                 callback();
                             }
                         },
