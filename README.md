@@ -3,6 +3,12 @@
 [![Build Status](https://travis-ci.org/SamVerschueren/mongoose-seeder.svg?branch=master)](https://travis-ci.org/SamVerschueren/mongoose-seeder)
 [![Coverage Status](https://coveralls.io/repos/SamVerschueren/mongoose-seeder/badge.svg?branch=master&service=github)](https://coveralls.io/github/SamVerschueren/mongoose-seeder?branch=master)
 
+-
+
+<p align="center">👷 <a href="https://github.com/SamVerschueren/mongoose-seeder/issues/12">Looking for a maintainer</a> 👷</p>
+
+-
+
 When testing an application, you always want to start with the same database. It is a lot of work to manually create
 dummy data and link them together. When you want extra data to test with, you'll have to create your mongoose objects
 manually in the ```before``` method of the entire testsuite.
