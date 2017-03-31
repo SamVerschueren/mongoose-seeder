@@ -242,29 +242,51 @@ module.exports = (function() {
 
             // Defaulting the options
             _this.options = _.extend(_.clone(DEFAULT_OPTIONS), options);
-
-            if(_this.options.dropCollections === true && _this.options.dropDatabase === true) {
-                // Only one of the two flags can be turned on. If both are true, this means the
-                // user set the dropCollections itself and this should have higher priority then
-                // the default values.
-                _this.options.dropDatabase = false;
+            
+            switch(mongoose.connection.readyState) {
+                    case 0: //disconnected
+                        done("db not open");
+                        break;
+                    case 1: //connected
+                        ready();
+                        break;
+                    case 2: //connecting
+                        mongoose.connection.on('connected', function() {
+                            ready();
+                        });
+                        break;
+                    case 3: //disconnecting
+                        done("db disconnecting");
+                        break;
+                    default: //any other state
+                        done("unknown db state");
+                        break;
             }
+            
+            function ready() {
+                if(_this.options.dropCollections === true && _this.options.dropDatabase === true) {
+                    // Only one of the two flags can be turned on. If both are true, this means the
+                    // user set the dropCollections itself and this should have higher priority then
+                    // the default values.
+                    _this.options.dropDatabase = false;
+                }
 
-            if(_this.options.dropDatabase === true) {
-                // Make sure to drop the database first
-                mongoose.connection.db.dropDatabase(function(err) {
-                    if(err) {
-                        // Stop seeding if an error occurred
-                        return done(err);
-                    }
+                if(_this.options.dropDatabase === true) {
+                    // Make sure to drop the database first
+                    mongoose.connection.db.dropDatabase(function(err) {
+                        if(err) {
+                            // Stop seeding if an error occurred
+                            return done(err);
+                        }
 
-                    // Start seeding when the database is dropped
+                        // Start seeding when the database is dropped
+                        _this._seed(_.cloneDeep(data), done);
+                    });               
+                }
+                else {
+                    // Do not drop the entire database, start seeding
                     _this._seed(_.cloneDeep(data), done);
-                });
-            }
-            else {
-                // Do not drop the entire database, start seeding
-                _this._seed(_.cloneDeep(data), done);
+                }
             }
 
             /**

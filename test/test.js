@@ -71,8 +71,11 @@ describe('Mongoose Seeder', function() {
                 mongoose.disconnect(function() {
                     seeder.seed(simpleData, function(err) {
                         should.exist(err);
-
-                        connect(done);
+                        mongoose.connection.on('disconnected', function() {
+                            //connect(done);
+                            connect();
+                        });
+                        done();
                     });
                 });
             });
@@ -391,8 +394,9 @@ describe('Mongoose Seeder', function() {
                 mongoose.disconnect(function() {
                     seeder.seed(simpleData).catch(function(err) {
                         should.exist(err);
-
-                        connect(done);
+                        mongoose.connection.on('disconnected', function() {
+                            connect(done);
+                        });
                     });
                 });
             });
