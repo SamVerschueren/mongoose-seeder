@@ -78,11 +78,15 @@ module.exports = (function() {
                         function(callback) {
                             if(_this.options.dropCollections === true) {
                                 // Drop the collection
-                                mongoose.connection.db.dropCollection(Model.collection.name, function(err) {
+                                mongoose.connection.collections[Model.collection.name].drop( function(err) {
                                     callback();
                                 });
                             }
-                            else {
+                            else if(_this.options.removeCollections === true) {
+                                mongoose.connection.collections[Model.collection.name].remove({}, function(err) {
+                                    callback();
+                                });
+                            } else {
                                 callback();
                             }
                         },
