@@ -24,7 +24,9 @@ npm install mongoose-seeder
 ## How to use
 
 ```JavaScript
-var seeder = require('mongoose-seeder'),
+var mongoose = require("mongoose");
+// ...
+var seeder = require('mongoose-seeder')(mongoose),
     data = require('./data.json');
 
 seeder.seed(data).then(function(dbData) {
