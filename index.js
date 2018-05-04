@@ -10,13 +10,12 @@
 
 // module dependencies
 var vm = require('vm'),
-    mongoose = require('mongoose'),
     async = require('async'),
     _ = require('lodash'),
     Q = require('q'),
     objectAssign = require('object-assign');
 
-module.exports = (function() {
+module.exports = function(mongoose) {
 
     // The default options
     var DEFAULT_OPTIONS = {
@@ -290,4 +289,4 @@ module.exports = (function() {
             return def.promise;
         }
     };
-})();
+};
