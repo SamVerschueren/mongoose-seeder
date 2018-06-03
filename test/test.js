@@ -32,7 +32,14 @@ fs.readdirSync(models_path).forEach(function (file) {
 });
 
 function connect(done) {
-    mongoose.connect('mongodb://localhost/mongoose-seeder', { server: { socketOptions: { keepAlive: 1 } } }, done);
+    mongoose.connect('mongodb://localhost/mongoose-seeder', { 
+        server: {
+            keepalive: 1
+        }
+    },(err) => {
+        if(err) console.log(err);
+        done();
+    });
 }
 
 // Surpress the bluebird Unhandled rejection error
