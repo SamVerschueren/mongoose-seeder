@@ -1,4 +1,5 @@
 node_modules/
 coverage/
-*.lock
-.idea/
+# If you change your mind, might be useful at some point.
+#.idea/
+#.vscode/
