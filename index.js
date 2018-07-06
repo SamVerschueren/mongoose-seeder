@@ -31,10 +31,11 @@ module.exports = (function() {
         /**
          * The internal method for seeding the database.
          *
-         * @param  {Object}   data The data that should be seeded.
-         * @param  {Function} done The method that should be called when the seeding is done
+         * @param  {Object}   connection  The Mongoose connection to which the models are scoped
+         * @param  {Object}   data        The data that should be seeded.
+         * @param  {Function} done        The method that should be called when the seeding is done
          */
-        _seed: function(data, done) {
+        _seed: function(connection, data, done) {
             try {
                 // Retrieve all the dependencies
                 _.forEach(data._dependencies || {}, function(value, key) {
@@ -72,13 +73,13 @@ module.exports = (function() {
                     delete value._model;
 
                     // retrieve the model depending on the name provided
-                    var Model = mongoose.model(modelName);
+                    var Model = connection.model(modelName);
 
                     async.series([
                         function(callback) {
                             if(_this.options.dropCollections === true) {
                                 // Drop the collection
-                                mongoose.connection.db.dropCollection(Model.collection.name, function(err) {
+                                connection.db.dropCollection(Model.collection.name, function(err) {
                                     callback();
                                 });
                             }
@@ -218,11 +219,12 @@ module.exports = (function() {
         /**
          * Start seeding the database.
          *
-         * @param  {Object}   data     The data object that should be inserted in the database.
-         * @param  {Object}   options  The options object to provide extras.
-         * @param  {Function} callback The method that should be called when the seeding is done.
+         * @param  {Object}   connection  The Mongoose connection to which the models are scoped
+         * @param  {Object}   data        The data object that should be inserted in the database.
+         * @param  {Object}   options     The options object to provide extras.
+         * @param  {Function} callback    The method that should be called when the seeding is done.
          */
-        seed: function(data, options, callback) {
+        seed: function(connection, data, options, callback) {
             if(_.isFunction(options)) {
                 // Set the correct callback function
                 callback = options;
@@ -252,19 +254,19 @@ module.exports = (function() {
 
             if(_this.options.dropDatabase === true) {
                 // Make sure to drop the database first
-                mongoose.connection.db.dropDatabase(function(err) {
+                connection.db.dropDatabase(function(err) {
                     if(err) {
                         // Stop seeding if an error occurred
                         return done(err);
                     }
 
                     // Start seeding when the database is dropped
-                    _this._seed(_.cloneDeep(data), done);
+                    _this._seed(connection, _.cloneDeep(data), done);
                 });
             }
             else {
                 // Do not drop the entire database, start seeding
-                _this._seed(_.cloneDeep(data), done);
+                _this._seed(connection, _.cloneDeep(data), done);
             }
 
             /**
