@@ -69,7 +69,7 @@ describe('Mongoose Seeder', function() {
 
             it('Should return an error if the connection with the database failed', function(done) {
                 mongoose.disconnect(function() {
-                    seeder.seed(simpleData, function(err) {
+                    seeder.seed(mongoose.connection, simpleData, function(err) {
                         should.exist(err);
 
                         connect(done);
@@ -80,7 +80,7 @@ describe('Mongoose Seeder', function() {
             it('Should call the create method of the User model', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     if(err) return done(err);
 
                     User.create.should.have.been.calledOnce;
@@ -92,7 +92,7 @@ describe('Mongoose Seeder', function() {
             it('Should call the create method of the User model with the foo object', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     if(err) return done(err);
 
                     User.create.should.have.been.calledWith(simpleData.users.foo);
@@ -104,7 +104,7 @@ describe('Mongoose Seeder', function() {
             it('Should create exactly one object in the database', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     if(err) return done(err);
 
                     User.count(function(err, count) {
@@ -120,7 +120,7 @@ describe('Mongoose Seeder', function() {
             it('Should create a second object if the dropDatabase property is set to false', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
+                seeder.seed(mongoose.connection, simpleData, {dropDatabase: false}, function(err) {
                     if(err) return done(err);
 
                     User.count(function(err, count) {
@@ -136,7 +136,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the model does not exist', function(done) {
                 simpleData.users._model = 'Users';
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     should.exist(err);
 
                     done();
@@ -146,7 +146,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the validation failed when creating an object', function(done) {
                 delete simpleData.users.foo.email;
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     should.exist(err);
 
                     done();
@@ -156,7 +156,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the _model property went missing', function(done) {
                 delete simpleData.users._model;
 
-                seeder.seed(simpleData, function(err) {
+                seeder.seed(mongoose.connection, simpleData, function(err) {
                     should.exist(err);
 
                     done();
@@ -169,7 +169,7 @@ describe('Mongoose Seeder', function() {
             it('Should drop the database if no options are provided', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData, function(err, dbData) {
+                seeder.seed(mongoose.connection, simpleData, function(err, dbData) {
                     if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
@@ -181,7 +181,7 @@ describe('Mongoose Seeder', function() {
             it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData, {dropDatabase: false}, function(err) {
+                seeder.seed(mongoose.connection, simpleData, {dropDatabase: false}, function(err) {
                     if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
@@ -193,7 +193,7 @@ describe('Mongoose Seeder', function() {
             it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropCollection');
 
-                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                seeder.seed(mongoose.connection, simpleData, {dropCollections: true}, function(err) {
                     if(err) return done(err);
 
                     mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
@@ -205,7 +205,7 @@ describe('Mongoose Seeder', function() {
             it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData, {dropCollections: true}, function(err) {
+                seeder.seed(mongoose.connection, simpleData, {dropCollections: true}, function(err) {
                     if(err) return done(err);
 
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
@@ -218,7 +218,7 @@ describe('Mongoose Seeder', function() {
         describe('References', function() {
 
             it('Should create a team with one user', function(done) {
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.teams.teamA.users.should.have.length(1);
@@ -228,7 +228,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the correct ID of the user in the team', function(done) {
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     if(err) return done(err);
 
                     var user = dbData.teams.teamA.users[0];
@@ -240,7 +240,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the correct email of the user in the team', function(done) {
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     if(err) return done(err);
 
                     var user = dbData.teams.teamA.users[0];
@@ -254,7 +254,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
                 refData.teams.teamA.users[0].user = '->users';
 
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     should.exist(err);
 
                     done();
@@ -264,7 +264,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the property in the reference was not found', function(done) {
                 refData.teams.teamA.users[0].email = '->users.fooo.email';
 
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     should.exist(err);
 
                     done();
@@ -274,7 +274,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the object of the reference was not found', function(done) {
                 refData.teams.teamA.users[0].email = '->user.foo.email';
 
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     should.exist(err);
 
                     done();
@@ -285,7 +285,7 @@ describe('Mongoose Seeder', function() {
         describe('Expressions', function() {
 
             it('Should set the full name to \'Foo Bar\'', function(done) {
-                seeder.seed(evalData, function(err, dbData) {
+                seeder.seed(mongoose.connection, evalData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.users.foo.fullName.should.be.equal('Foo Bar');
@@ -295,7 +295,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set a date as birthday', function(done) {
-                seeder.seed(evalData, function(err, dbData) {
+                seeder.seed(mongoose.connection, evalData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.users.foo.birthday.should.be.a('Date');
@@ -305,7 +305,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the number of nationalities to 2', function(done) {
-                seeder.seed(evalData, function(err, dbData) {
+                seeder.seed(mongoose.connection, evalData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.users.foo.nationalities.should.be.equal(2);
@@ -317,7 +317,7 @@ describe('Mongoose Seeder', function() {
             it('Should not throw an error if the expression could not be processed', function(done) {
                 evalData.users.foo.fullName = '=firstName + \' \' + name';
 
-                seeder.seed(evalData, function(err, dbData) {
+                seeder.seed(mongoose.connection, evalData, function(err, dbData) {
                     should.not.exist(err);
 
                     done();
@@ -327,7 +327,7 @@ describe('Mongoose Seeder', function() {
             it('Should just store the string value of the expression if it could not be processed ', function(done) {
                 evalData.users.foo.fullName = '=firstName + \' \' + name';
 
-                seeder.seed(evalData, function(err, dbData) {
+                seeder.seed(mongoose.connection, evalData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
@@ -340,7 +340,7 @@ describe('Mongoose Seeder', function() {
         describe('Dependencies', function() {
 
             it('Should not create moment as global variable', function(done) {
-                seeder.seed(dependencyData, function(err, dbData) {
+                seeder.seed(mongoose.connection, dependencyData, function(err, dbData) {
                     if(err) return done(err);
 
                     should.not.exist(global.moment);
@@ -350,7 +350,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the birthday of foo to the 25th of July 1988', function(done) {
-                seeder.seed(dependencyData, function(err, dbData) {
+                seeder.seed(mongoose.connection, dependencyData, function(err, dbData) {
                     if(err) return done(err);
 
                     dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
@@ -362,7 +362,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the dependency is not found', function(done) {
                 dependencyData._dependencies.unknown = 'unknown';
 
-                seeder.seed(dependencyData, function(err) {
+                seeder.seed(mongoose.connection, dependencyData, function(err) {
                     should.exist(err);
 
                     done();
@@ -372,7 +372,7 @@ describe('Mongoose Seeder', function() {
             it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
                 dependencyData._dependencies.unknown = 'unknown';
 
-                seeder.seed(dependencyData, function(err) {
+                seeder.seed(mongoose.connection, dependencyData, function(err) {
                     err.code.should.be.equal('MODULE_NOT_FOUND');
 
                     done();
@@ -389,7 +389,7 @@ describe('Mongoose Seeder', function() {
 
             it('Should return an error if the connection with the database failed', function(done) {
                 mongoose.disconnect(function() {
-                    seeder.seed(simpleData).catch(function(err) {
+                    seeder.seed(mongoose.connection, simpleData).catch(function(err) {
                         should.exist(err);
 
                         connect(done);
@@ -400,7 +400,7 @@ describe('Mongoose Seeder', function() {
             it('Should call the create method of the User model', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData).then(function() {
+                seeder.seed(mongoose.connection, simpleData).then(function() {
                     User.create.should.have.been.calledOnce;
 
                     done();
@@ -410,7 +410,7 @@ describe('Mongoose Seeder', function() {
             it('Should call the create method of the User model with the foo object', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData).then(function() {
+                seeder.seed(mongoose.connection, simpleData).then(function() {
                     User.create.should.have.been.calledWith(simpleData.users.foo);
 
                     done();
@@ -420,7 +420,7 @@ describe('Mongoose Seeder', function() {
             it('Should create exactly one object in the database', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData).then(function() {
+                seeder.seed(mongoose.connection, simpleData).then(function() {
                     User.count(function(err, count) {
                         if(err) return done(err);
 
@@ -434,7 +434,7 @@ describe('Mongoose Seeder', function() {
             it('Should create a second object if the dropDatabase property is set to false', sinon.test(function(done) {
                 this.spy(mongoose.model('User'), 'create');
 
-                seeder.seed(simpleData, {dropDatabase: false}).then(function() {
+                seeder.seed(mongoose.connection, simpleData, {dropDatabase: false}).then(function() {
                     User.count(function(err, count) {
                         if(err) return done(err);
 
@@ -448,7 +448,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the model does not exist', function(done) {
                 simpleData.users._model = 'Users';
 
-                seeder.seed(simpleData).catch(function(err) {
+                seeder.seed(mongoose.connection, simpleData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -458,7 +458,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the validation failed when creating an object', function(done) {
                 delete simpleData.users.foo.email;
 
-                seeder.seed(simpleData).catch(function(err) {
+                seeder.seed(mongoose.connection, simpleData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -468,7 +468,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the _model property went missing', function(done) {
                 delete simpleData.users._model;
 
-                seeder.seed(simpleData).catch(function(err) {
+                seeder.seed(mongoose.connection, simpleData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -481,7 +481,7 @@ describe('Mongoose Seeder', function() {
             it('Should drop the database if no options are provided', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData).then(function(dbData) {
+                seeder.seed(mongoose.connection, simpleData).then(function(dbData) {
                     mongoose.connection.db.dropDatabase.should.have.been.calledOnce;
 
                     done();
@@ -491,7 +491,7 @@ describe('Mongoose Seeder', function() {
             it('Should not drop the database if the dropDatabase option is set to false', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData, {dropDatabase: false}).then(function() {
+                seeder.seed(mongoose.connection, simpleData, {dropDatabase: false}).then(function() {
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
 
                     done();
@@ -501,7 +501,7 @@ describe('Mongoose Seeder', function() {
             it('Should drop the users collection if the dropCollections option is set to true', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropCollection');
 
-                seeder.seed(simpleData, {dropCollections: true}).then(function() {
+                seeder.seed(mongoose.connection, simpleData, {dropCollections: true}).then(function() {
                     mongoose.connection.db.dropCollection.should.have.been.calledWith('users');
 
                     done();
@@ -511,7 +511,7 @@ describe('Mongoose Seeder', function() {
             it('Should not drop the database if the dropCollections option is set to true', sinon.test(function(done) {
                 this.spy(mongoose.connection.db, 'dropDatabase');
 
-                seeder.seed(simpleData, {dropCollections: true}).then(function() {
+                seeder.seed(mongoose.connection, simpleData, {dropCollections: true}).then(function() {
                     mongoose.connection.db.dropDatabase.should.not.have.been.called;
 
                     done();
@@ -522,7 +522,7 @@ describe('Mongoose Seeder', function() {
         describe('References', function() {
 
             it('Should create a team with one user', function(done) {
-                seeder.seed(refData).then(function(dbData) {
+                seeder.seed(mongoose.connection, refData).then(function(dbData) {
                     dbData.teams.teamA.users.should.have.length(1);
 
                     done();
@@ -530,7 +530,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the correct ID of the user in the team', function(done) {
-                seeder.seed(refData).then(function(dbData) {
+                seeder.seed(mongoose.connection, refData).then(function(dbData) {
                     var user = dbData.teams.teamA.users[0];
 
                     user.user.should.be.eql(dbData.users.foo._id);
@@ -540,7 +540,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the correct email of the user in the team', function(done) {
-                seeder.seed(refData).then(function(dbData) {
+                seeder.seed(mongoose.connection, refData).then(function(dbData) {
                     var user = dbData.teams.teamA.users[0];
 
                     user.email.should.be.equal(dbData.users.foo.email);
@@ -552,7 +552,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the reference references to an object but the object does not have an _id property', function(done) {
                 refData.teams.teamA.users[0].user = '->users';
 
-                seeder.seed(refData).catch(function(err) {
+                seeder.seed(mongoose.connection, refData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -562,7 +562,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the property in the reference was not found', function(done) {
                 refData.teams.teamA.users[0].email = '->users.fooo.email';
 
-                seeder.seed(refData).catch(function(err) {
+                seeder.seed(mongoose.connection, refData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -572,7 +572,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the object of the reference was not found', function(done) {
                 refData.teams.teamA.users[0].email = '->user.foo.email';
 
-                seeder.seed(refData, function(err, dbData) {
+                seeder.seed(mongoose.connection, refData, function(err, dbData) {
                     should.exist(err);
 
                     done();
@@ -583,7 +583,7 @@ describe('Mongoose Seeder', function() {
         describe('Expressions', function() {
 
             it('Should set the full name to \'Foo Bar\'', function(done) {
-                seeder.seed(evalData).then(function(dbData) {
+                seeder.seed(mongoose.connection, evalData).then(function(dbData) {
                     dbData.users.foo.fullName.should.be.equal('Foo Bar');
 
                     done();
@@ -591,7 +591,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set a date as birthday', function(done) {
-                seeder.seed(evalData).then(function(dbData) {
+                seeder.seed(mongoose.connection, evalData).then(function(dbData) {
                     dbData.users.foo.birthday.should.be.a('Date');
 
                     done();
@@ -599,7 +599,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the number of nationalities to 2', function(done) {
-                seeder.seed(evalData).then(function(dbData) {
+                seeder.seed(mongoose.connection, evalData).then(function(dbData) {
                     dbData.users.foo.nationalities.should.be.equal(2);
 
                     done();
@@ -609,7 +609,7 @@ describe('Mongoose Seeder', function() {
             it('Should not throw an error if the expression could not be processed', function(done) {
                 evalData.users.foo.fullName = '=firstName + \' \' + name';
 
-                seeder.seed(evalData).then(function(dbData) {
+                seeder.seed(mongoose.connection, evalData).then(function(dbData) {
                     done();
                 });
             });
@@ -617,7 +617,7 @@ describe('Mongoose Seeder', function() {
             it('Should just store the string value of the expression if it could not be processed ', function(done) {
                 evalData.users.foo.fullName = '=firstName + \' \' + name';
 
-                seeder.seed(evalData).then(function(dbData) {
+                seeder.seed(mongoose.connection, evalData).then(function(dbData) {
                     dbData.users.foo.fullName.should.be.equal('=firstName + \' \' + name');
 
                     done();
@@ -628,7 +628,7 @@ describe('Mongoose Seeder', function() {
         describe('Dependencies', function() {
 
             it('Should not create moment as global variable', function(done) {
-                seeder.seed(dependencyData).then(function(dbData) {
+                seeder.seed(mongoose.connection, dependencyData).then(function(dbData) {
                     should.not.exist(global.moment);
 
                     done();
@@ -636,7 +636,7 @@ describe('Mongoose Seeder', function() {
             });
 
             it('Should set the birthday of foo to the 25th of July 1988', function(done) {
-                seeder.seed(dependencyData).then(function(dbData) {
+                seeder.seed(mongoose.connection, dependencyData).then(function(dbData) {
                     dbData.users.foo.birthday.should.be.eql(moment('1988-07-25').toDate());
 
                     done();
@@ -646,7 +646,7 @@ describe('Mongoose Seeder', function() {
             it('Should return an error if the dependency is not found', function(done) {
                 dependencyData._dependencies.unknown = 'unknown';
 
-                seeder.seed(dependencyData).catch(function(err) {
+                seeder.seed(mongoose.connection, dependencyData).catch(function(err) {
                     should.exist(err);
 
                     done();
@@ -656,7 +656,7 @@ describe('Mongoose Seeder', function() {
             it('Should return a \'MODULE_NOT_FOUND\' error if the dependency is not found', function(done) {
                 dependencyData._dependencies.unknown = 'unknown';
 
-                seeder.seed(dependencyData).catch(function(err) {
+                seeder.seed(mongoose.connection, dependencyData).catch(function(err) {
                     err.code.should.be.equal('MODULE_NOT_FOUND');
 
                     done();
