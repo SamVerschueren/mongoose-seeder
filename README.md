@@ -11,7 +11,7 @@
 
 When testing an application, you always want to start with the same database. It is a lot of work to manually create
 dummy data and link them together. When you want extra data to test with, you'll have to create your mongoose objects
-manually in the ```before``` method of the entire testsuite.
+manually in the `before` method of the entire testsuite.
 
 This library offers a nice, clean and elegant solution that will create the dummy data objects from a JSON file.
 
@@ -27,14 +27,19 @@ npm install mongoose-seeder
 var seeder = require('mongoose-seeder'),
     data = require('./data.json');
 
-seeder.seed(data).then(function(dbData) {
+mongoose.connect(dbUri).then(() => {
+  require('./modelOne');
+  require('./modelTwo');
+  seeder.seed(mongoose.connection, data).then(function(dbData) {
     // The database objects are stored in dbData
-}).catch(function(err) {
-    // handle error
-});
+  }).catch(function(err) {
+      // handle error
+  }).finally(() => mongoose.connection.close());
+})
 ```
 
-The ```seed``` function has two options.
+The `seed` function has three arguments.
+* **connection**: The Mongoose connection to which the models have been scoped.
 * **data**: The JSON objects that will be used to create the mongo documents.
 * **options**: [optional] Extra options that alter the behaviour. The default behaviour is drop the entire database before seeding it again.
 
@@ -44,7 +49,7 @@ Although, promises are the preferred way of using the library. It's also possibl
 in the seed function.
 
 ```JavaScript
-seeder.seed(data, function(err, dbData) {
+seeder.seed(connection, data, function(err, dbData) {
     // ...
 })
 ```
@@ -61,13 +66,13 @@ nothing and just add the data to the collections. The default behaviour is to dr
 
 #### Drop database
 
-By setting this property to ```true```, it will drop the entire database before creating the documents again. This
-is the default behaviour. If you set this property to ```false```, it will do nothing and just tries to append the
+By setting this property to `true`, it will drop the entire database before creating the documents again. This
+is the default behaviour. If you set this property to `false`, it will do nothing and just tries to append the
 documents to the collection.
 
 ```JavaScript
 // Drop the entire database (default behaviour)
-seeder.seed(data, {dropDatabase: true}).then(function(dbData) {
+seeder.seed(connection, data, {dropDatabase: true}).then(function(dbData) {
     // ...
 }).catch(function(err) {
     // handle error
@@ -76,12 +81,12 @@ seeder.seed(data, {dropDatabase: true}).then(function(dbData) {
 
 #### Drop collections
 
-By setting this option to ```true```, it will only drop the collections that are being seeded. If you have two collections
+By setting this option to `true`, it will only drop the collections that are being seeded. If you have two collections
 for example, but only one collection is filled by the seeder, only that collection will be dropped.
 
 ```JavaScript
 // Drop the entire database (default behaviour)
-seeder.seed(data, {dropCollections: true}).then(function(dbData) {
+seeder.seed(connection, data, {dropCollections: true}).then(function(dbData) {
     // ...
 }).catch(function(err) {
     // handle error
@@ -92,7 +97,7 @@ seeder.seed(data, {dropCollections: true}).then(function(dbData) {
 
 #### Simple data
 
-How does a json file looks like? Take a look at this simple example.
+What does a json file looks like? Take a look at this simple example.
 
 ```json
 {
@@ -107,7 +112,7 @@ How does a json file looks like? Take a look at this simple example.
 }
 ```
 
-It will try to find the mongoose model ```User``` and calls the ```create``` method for the foo object.
+It will try to find the mongoose model `User` and calls the `create` method for the foo object.
 
 The reason that this isn't an array of items, is because in the callback method, the second parameter returns the database object. This
 will look like this.
@@ -130,7 +135,7 @@ So the foo user can be accessed as following.
 
 ```JavaScript
 // Drop the entire database (default behaviour)
-seeder.seed(data, {dropCollections: true}, function(err, dbData) {
+seeder.seed(connection, data, {dropCollections: true}, function(err, dbData) {
     var foo = dbData.users.foo;
 });
 ```
@@ -170,8 +175,8 @@ document. It is possible to do that with this library.
 }
 ```
 
-A team holds a list of users with the ```_id``` and the ```email``` of that user. Notice that writing ```->users.foo``` is identical
-to writing ```->users.foo._id```.
+A team holds a list of users with the `_id` and the `email` of that user. Notice that writing `->users.foo` is identical
+to writing `->users.foo._id`.
 
 Another thing that should be taken into account is that it's not possible to do a forward reference. This means that in this case,
 a user cannot reference a team. The reason for this is that at the time the user is being created, the team does not yet exist. This
@@ -195,7 +200,7 @@ Sometimes you will need something as an expression, for instance to set the birt
 }
 ```
 
-Every statement that is preceded by an ```=```-sign will be evaluated by the native ```eval()``` method of JavaScript.
+Every statement that is preceded by an `=`-sign will be evaluated by the native `eval()` method of JavaScript.
 
 We can also bring it a step further and reference to the object itself. For instance, if we want to store the full name of
 the user aswell, instead of adding it manually, you can do something like this.
@@ -215,11 +220,11 @@ the user aswell, instead of adding it manually, you can do something like this.
 }
 ```
 
-The result of the ```fullName``` expression will be ```Foo Bar```. So every evaluation is evaluated in it's own context.
+The result of the `fullName` expression will be `Foo Bar`. So every evaluation is evaluated in it's own context.
 
 #### Dependencies
 
-What if we don't want to make use of the plain old ```Date``` object, but instead use something like ```moment```. This is possible by
+What if we don't want to make use of the plain old `Date` object, but instead use something like `moment`. This is possible by
 adding a list of dependencies.
 
 ```json
@@ -240,7 +245,7 @@ adding a list of dependencies.
 ```
 
 If you are using a dependency in your json file, be sure to install it as dependency in your project. If not, it will stop the execution
-and return a ```MODULE_NOT_FOUND``` error in the callback function.
+and return a `MODULE_NOT_FOUND` error in the callback function.
 
 ## Contributors
 
